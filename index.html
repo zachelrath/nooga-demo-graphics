@@ -26,7 +26,10 @@ nooga.$ = jQuery.noConflict();
 
     var map,
     	polygons,
-    	infoWindow;
+    	infoWindow,
+    	filterBox,
+    	yearSelect,
+    	currentDataSet;
 
     var initialize = function() {
     
@@ -40,10 +43,50 @@ nooga.$ = jQuery.noConflict();
 		};
 		map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
 		polygons = [];
-		
-		createPolygonsForDataSet(medianIncomeData,'1990');
 
   		infowindow = new google.maps.InfoWindow();
+  		
+  		// TODO: allow this to be filterable as well
+  		currentDataSet = medianIncomeData;
+  		
+  		var years = ["1990","2000","2007-2011"];
+  		
+  		// Create our initial polygons
+  		createPolygonsForDataSet(currentDataSet,years[0]);
+  		
+  		//
+  		// Set up our Filters
+  		//
+  		
+  		// Set up the Year selection filter
+  		yearSelect = $('<select>');
+  		
+  		// TODO: have this set of years be dynamically pulled from data
+  		$.each(years,function(){ 
+  			yearSelect.append($('<option value="'+this+'">').text(this));
+  		});
+  		
+  		yearSelect.on('change',function(){
+  			changeYear($(this).val());
+  		});
+  		
+  		filterBox = $('<div id="filterbox">')
+  			.append(
+  				$('<div><b>Select Year</b></div>'),
+  				yearSelect
+  			)
+  			.appendTo($("body"));
+  		
+  		// Set our initial filter value	
+  		yearSelect.val(years[0]);		
+  			
+    };
+    
+    var changeYear = function(newYear) {
+        // Remove all of our current polygons
+        removeAllPolygonsFromMap();
+        // Create new polygons for the selected data set
+        createPolygonsForDataSet(currentDataSet,newYear);
     };
     
     // 
@@ -64,6 +107,12 @@ nooga.$ = jQuery.noConflict();
 			g = Math.floor((255 * (100 - percent)) / 100),
 			b = 0;
 		return rgbToHex(r,g,b);
+	};
+	
+	var removeAllPolygonsFromMap = function() {
+	   $.each(getPolygons(),function(){
+	      removePolygonFromMap(this);
+	   });
 	};
 	
 	var removePolygonFromMap = function(polygon) { 
