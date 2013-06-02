@@ -31,7 +31,10 @@ nooga.$ = jQuery.noConflict();
     	homeControlDiv,
     	filterBox,
     	yearSelect,
-    	currentDataSet;
+    	dataSetSelect,
+    	currentYear,
+    	currentDataSet,
+    	colorKey;
     	
     var chattanooga = new google.maps.LatLng(35.0456, -85.3097);	
     	
@@ -98,11 +101,13 @@ nooga.$ = jQuery.noConflict();
 	 
 		 homeControlDiv.index = 1;
 		 map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+
+  		var years = ["1990","2000","2007-2011"];
+  		var dataSets = ["Median Income","Population with Bachelors Degree"];
   		
   		// TODO: allow this to be filterable as well
   		currentDataSet = medianIncomeData;
-  		
-  		var years = ["1990","2000","2007-2011"];
+  		currentYear = years[0];
   		
   		// Create our initial polygons
   		createPolygonsForDataSet(currentDataSet,years[0]);
@@ -131,7 +136,58 @@ nooga.$ = jQuery.noConflict();
   			.appendTo($("body"));
   		
   		// Set our initial filter value	
-  		yearSelect.val(years[0]);		
+  		yearSelect.val(years[0]);
+  		
+  		/*
+  		//
+  		// Set up the Data Set selection filter
+  		//
+  		dataSetSelect = $('<select>');
+  		
+  		
+  		// TODO: have this set of years be dynamically pulled from data
+  		$.each(dataSets,function(){ 
+  			dataSetSelect.append($('<option value="'+this+'">').text(this));
+  		});
+  		
+  		dataSetSelect.on('change',function(){
+  			changeDataSet($(this).val());
+  		});
+  		
+  		filterBox = $('<div id="dataSetFilter" class="mapControlBox">')
+  			.append(
+  				$('<div><b>Select Data Set</b></div>'),
+  				dataSetSelect
+  			)
+  			.appendTo($("body"));
+  		
+  		// Set our initial filter value	
+  		dataSetSelect.val(dataSets[0]);	
+  		*/	
+  		
+  		colorKey = $('<div id="colorKey" class="mapControlBox">')
+  			.append($('<div><b>Color Key</b></div>'));
+  		
+  		colorKey.append(
+  			$(
+			   '<table><tbody>'
+			   +'<tr><td><div class="coloredBox" style="background-color: '
+			   	 + percentToHex(0) + ';"/></td><td>$10,000 / yr</td></tr>'
+			   +'<tr><td><div class="coloredBox" style="background-color: '
+			   	 + percentToHex(25) + ';"/></td><td>$20,000 / yr</td></tr>'
+			   +'<tr><td><div class="coloredBox" style="background-color: '
+			   	 + percentToHex(50) + ';"/></td><td>$30,000 / yr</td></tr>'
+			   +'<tr><td><div class="coloredBox" style="background-color: '
+			   	 + percentToHex(75) + ';"/></td><td>$40,000 / yr</td></tr>'
+			   +'<tr><td><div class="coloredBox" style="background-color: '
+			   	 + percentToHex(100) + ';"/></td><td>$50,000 / yr</td></tr>'			   	 			   	 			   	 			   	 
+			   + '</tbody></table>'
+			)		
+  		);	
+  		
+  		
+  			
+  		colorKey.appendTo($("body"));
   			
     };
     
@@ -141,6 +197,15 @@ nooga.$ = jQuery.noConflict();
         // Create new polygons for the selected data set
         createPolygonsForDataSet(currentDataSet,newYear);
     };
+    
+    /*
+    var changeDataSet = function(newDataSet) {
+        // Remove all of our current polygons
+        removeAllPolygonsFromMap();
+        // Create new polygons for the selected data set
+        createPolygonsForDataSet(currentDataSet,newYear);
+    };
+    */
     
     // 
     // UTILITY FUNCTIONS
@@ -229,7 +294,13 @@ nooga.$ = jQuery.noConflict();
 		
 		// Get the min and max of our data set
 		var max = Math.max.apply( Math, vals),
-			min = Math.min.apply( Math, vals);	
+			min = Math.min.apply( Math, vals);
+			
+		// Make these values a constant
+		if (dataSet == medianIncomeData) {
+		   max = 50000;
+		   min = 10000;
+		}		
 		
 		$.each(validDataByZip,function(zipCode,dataPoint){
 			// Get the boundaries for this zip code
