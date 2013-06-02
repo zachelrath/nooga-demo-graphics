@@ -28,11 +28,8 @@ nooga.$ = jQuery.noConflict();
     	polygons,
     	infoWindow;
 
-    var initialize = function(initialPosition) {
-        //if (!initialPosition) {
-            initialPosition = new google.maps.LatLng(44.429699,-73.909687);
-		    //chattanoogaPosition = new google.maps.LatLng(35.0456, -85.3097);
-        //}
+    var initialize = function() {
+        var initialPosition = new google.maps.LatLng(35.0456, -85.3097);
         
     	// Initial settings
         var mapOptions = {
@@ -61,7 +58,8 @@ nooga.$ = jQuery.noConflict();
 	var percentToHex = function(percent) {
 		if (percent > 100) percent = 100;
 		else if (percent < 0) percent = 0;
-		var r = Math.floor((255 * percent) / 100),
+		//var r = Math.floor((255 * percent) / 100),
+		var r = 0,
 			g = Math.floor((255 * (100 - percent)) / 100),
 			b = 0;
 		return rgbToHex(r,g,b);
